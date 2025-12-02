@@ -19,12 +19,13 @@ pub fn main() !void {
         return;
     }
     std.debug.print("Day: {d}; problem: {d}.\n", .{ day, problem });
+    var solution: u32 = 0;
     switch (day) {
         1 => {
             if (problem == 1) {
-                try day_1.problem_1();
+                solution = try day_1.problem_1();
             } else {
-                try day_1.problem_2();
+                solution = try day_1.problem_2();
             }
         },
         else => {
@@ -32,4 +33,5 @@ pub fn main() !void {
             return;
         },
     }
+    std.debug.print("Solution: {d}.\n", .{solution});
 }
