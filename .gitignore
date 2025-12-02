@@ -6,3 +6,6 @@ zig-out/
 *.dll
 *.so
 *.dylib
+
+
+data

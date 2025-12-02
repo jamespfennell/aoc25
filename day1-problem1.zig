@@ -1,9 +1,39 @@
-//! By convention, main.zig is where your main function lives in the case that
-//! you are building an executable. If you are making a library, the convention
-//! is to delete this file and start with root.zig instead.
 const std = @import("std");
 
 pub fn main() !void {
+    const allocator = std.heap.page_allocator; // Or another suitable allocator
+
+    // Define the path to the file you want to read
+    const file_path = "data/day1.txt";
+
+    // Read the file's content into a byte slice
+    const file_content = try std.fs.cwd().readFileAlloc(allocator, file_path, std.math.maxInt(usize));
+    defer allocator.free(file_content); // Remember to free the allocated memory
+
+    // Now, 'file_content' holds the entire file as a byte slice.
+    // You can print it or process it further.
+    std.debug.print("File content:\n{s}\n", .{file_content});
+
+    var sum: u32 = 50;
+    var num_zeros: u32 = 0;
+    var iter = std.mem.splitSequence(u8, file_content, "\n");
+    while (iter.next()) |entry| {
+        if (entry.len != 0) {
+            const i = stringToInt(entry[1..]) % 100;
+            std.debug.print("Line content: \"{s}\" {d} sum {d}\n", .{ entry, i, sum });
+            if (entry[0] == 'R') {
+                sum = (sum + i) % 100;
+            }
+            if (entry[0] == 'L') {
+                sum = (sum + 100 - i) % 100;
+            }
+            if (sum == 0) {
+                num_zeros += 1;
+            }
+        }
+    }
+    std.debug.print("Answer: {d}\n", .{num_zeros});
+
     // Prints to stderr (it's a shortcut based on `std.io.getStdErr()`)
     std.debug.print("All your {s} are belong to us.\n", .{"codebase"});
 
@@ -19,19 +49,10 @@ pub fn main() !void {
     try bw.flush(); // Don't forget to flush!
 }
 
-test "simple test" {
-    var list = std.ArrayList(i32).init(std.testing.allocator);
-    defer list.deinit(); // Try commenting this out and see if zig detects the memory leak!
-    try list.append(42);
-    try std.testing.expectEqual(@as(i32, 42), list.pop());
-}
-
-test "fuzz example" {
-    const global = struct {
-        fn testOne(input: []const u8) anyerror!void {
-            // Try passing `--fuzz` to `zig build test` and see if it manages to fail this test case!
-            try std.testing.expect(!std.mem.eql(u8, "canyoufindme", input));
-        }
-    };
-    try std.testing.fuzz(global.testOne, .{});
+fn stringToInt(s: []const u8) u32 {
+    var r: u32 = 0;
+    for (s) |c| {
+        r = r * 10 + (c - '0');
+    }
+    return r;
 }
