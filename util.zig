@@ -17,3 +17,18 @@ pub fn stringToInt(s: []const u8) u64 {
     }
     return r;
 }
+
+pub const Max = struct {
+    value: u8,
+    index: usize,
+};
+
+pub fn max(i: []const u8) Max {
+    var m = Max{ .value = 0, .index = 0 };
+    for (i, 0..) |elem, index| {
+        if (elem > m.value) {
+            m = Max{ .value = elem, .index = index };
+        }
+    }
+    return m;
+}

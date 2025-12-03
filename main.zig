@@ -1,5 +1,6 @@
 const day_1 = @import("day1.zig");
 const day_2 = @import("day2.zig");
+const day_3 = @import("day3.zig");
 const std = @import("std");
 const util = @import("util.zig");
 
@@ -23,6 +24,7 @@ pub fn main() !void {
     const solution = switch (day) {
         1 => try solve(problem, day_1),
         2 => try solve(problem, day_2),
+        3 => try solve(problem, day_3),
         else => {
             std.debug.print("Error: invalid day {d}.\n", .{day});
             return;
