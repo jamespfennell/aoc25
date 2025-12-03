@@ -7,9 +7,12 @@ pub fn readInput(day: u32) ![]u8 {
     return try std.fs.cwd().readFileAlloc(allocator, file_path, std.math.maxInt(usize));
 }
 
-pub fn stringToInt(s: []const u8) u32 {
-    var r: u32 = 0;
+pub fn stringToInt(s: []const u8) u64 {
+    var r: u64 = 0;
     for (s) |c| {
+        if (c < '0' or c > '9') {
+            break;
+        }
         r = r * 10 + (c - '0');
     }
     return r;

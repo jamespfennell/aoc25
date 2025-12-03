@@ -1,13 +1,13 @@
 const std = @import("std");
 const util = @import("util.zig");
 
-pub fn problem_1() !u32 {
+pub fn problem_1() !u64 {
     const file_content = try util.readInput(1);
     const instructions = try parse_input(file_content);
     defer instructions.deinit();
 
-    var sum: u32 = 50;
-    var num_zeros: u32 = 0;
+    var sum: u64 = 50;
+    var num_zeros: u64 = 0;
     for (instructions.items) |item| {
         switch (item.direction) {
             Direction.left => {
@@ -24,13 +24,13 @@ pub fn problem_1() !u32 {
     return num_zeros;
 }
 
-pub fn problem_2() !u32 {
+pub fn problem_2() !u64 {
     const file_content = try util.readInput(1);
     const instructions = try parse_input(file_content);
     defer instructions.deinit();
 
-    var sum: u32 = 50;
-    var num_zeros: u32 = 0;
+    var sum: u64 = 50;
+    var num_zeros: u64 = 0;
     for (instructions.items) |item| {
         switch (item.direction) {
             Direction.left => {
@@ -52,7 +52,7 @@ const Direction = enum { left, right };
 
 const Instruction = struct {
     direction: Direction,
-    distance: u32,
+    distance: u64,
 };
 
 fn parse_input(s: []const u8) !std.ArrayList(Instruction) {

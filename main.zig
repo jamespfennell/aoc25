@@ -1,4 +1,5 @@
 const day_1 = @import("day1.zig");
+const day_2 = @import("day2.zig");
 const std = @import("std");
 const util = @import("util.zig");
 
@@ -19,19 +20,24 @@ pub fn main() !void {
         return;
     }
     std.debug.print("Day: {d}; problem: {d}.\n", .{ day, problem });
-    var solution: u32 = 0;
-    switch (day) {
-        1 => {
-            if (problem == 1) {
-                solution = try day_1.problem_1();
-            } else {
-                solution = try day_1.problem_2();
-            }
-        },
+    const solution = switch (day) {
+        1 => try solve(problem, day_1),
+        2 => try solve(problem, day_2),
         else => {
             std.debug.print("Error: invalid day {d}.\n", .{day});
             return;
         },
-    }
+    };
     std.debug.print("Solution: {d}.\n", .{solution});
+}
+
+fn solve(
+    problem: u64,
+    comptime t: type,
+) !u64 {
+    if (problem == 1) {
+        return t.problem_1();
+    } else {
+        return t.problem_2();
+    }
 }
