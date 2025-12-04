@@ -22,8 +22,18 @@ pub fn problem_2() !u64 {
 }
 
 fn problem_2_impl(file_content: []const u8) !u64 {
-    _ = file_content;
-    return 0;
+    const banks = try parse_input(file_content);
+    var total: u64 = 0;
+    for (banks.items) |bank| {
+        var i: usize = 0;
+        var start: usize = 0;
+        while (i < 12) : (i += 1) {
+            const m = util.max(bank.items[start .. bank.items.len - (11 - i)]);
+            start += m.index + 1;
+            total += util.ten_to_pow(11 - i) * m.value;
+        }
+    }
+    return total;
 }
 
 const Range = struct {
@@ -54,4 +64,11 @@ test "problem_1_example" {
 }
 test "problem_1" {
     try std.testing.expectEqual(17766, problem_1());
+}
+test "problem_2_example" {
+    const input = "987654321111111\n811111111111119\n234234234234278\n818181911112111\n";
+    try std.testing.expectEqual(3121910778619, problem_2_impl(input));
+}
+test "problem_2" {
+    try std.testing.expectEqual(176582889354075, problem_2());
 }

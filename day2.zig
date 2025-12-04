@@ -24,12 +24,12 @@ fn problem_1_impl(file_content: []const u8) !u64 {
         var upper: u64 = 0;
         if (lower_digits % 2 == 1) {
             digits = upper_digits;
-            lower = ten_to_pow(upper_digits - 1);
+            lower = util.ten_to_pow(upper_digits - 1);
             upper = range.upper;
         } else if (upper_digits % 2 == 1) {
             digits = lower_digits;
             lower = range.lower;
-            upper = ten_to_pow(lower_digits) - 1;
+            upper = util.ten_to_pow(lower_digits) - 1;
         } else {
             digits = lower_digits;
             lower = range.lower;
@@ -41,7 +41,7 @@ fn problem_1_impl(file_content: []const u8) !u64 {
         // 2/4 digits * 101
         // 3/6 digits * 1001
         // 4/8 digits * 10001
-        const divisor: u64 = ten_to_pow(digits / 2) + 1;
+        const divisor: u64 = util.ten_to_pow(digits / 2) + 1;
         const n = sum_evenly_divisible(lower, upper, divisor);
         sum += n;
 
@@ -78,7 +78,7 @@ fn problem_2_impl(file_content: []const u8) !u64 {
                     num_repeating_digits += 1;
                     continue;
                 }
-                const base = ten_to_pow(num_repeating_digits);
+                const base = util.ten_to_pow(num_repeating_digits);
                 const repeating_digits = n % base;
                 var j: u64 = 0;
                 var n_new: u64 = 0;
@@ -123,19 +123,6 @@ fn parse_input(s: []const u8) !std.ArrayList(Range) {
         try list.append(Range{ .lower = lower, .upper = upper });
     }
     return list;
-}
-
-pub fn ten_to_pow(e: u64) u64 {
-    var d = e;
-    if (d == 0) {
-        return 1;
-    }
-    var r: u64 = 10;
-    while (d > 1) {
-        r *= 10;
-        d -= 1;
-    }
-    return r;
 }
 
 pub fn num_digits(n: u64) u64 {

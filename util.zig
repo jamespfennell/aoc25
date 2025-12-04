@@ -32,3 +32,16 @@ pub fn max(i: []const u8) Max {
     }
     return m;
 }
+
+pub fn ten_to_pow(e: u64) u64 {
+    var d = e;
+    if (d == 0) {
+        return 1;
+    }
+    var r: u64 = 10;
+    while (d > 1) {
+        r *= 10;
+        d -= 1;
+    }
+    return r;
+}
