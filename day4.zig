@@ -40,8 +40,37 @@ pub fn problem_2() !u64 {
 }
 
 fn problem_2_impl(file_content: []const u8) !u64 {
-    _ = file_content;
-    return 0;
+    const input = try parse_input(file_content);
+    const n = input.items.len;
+    const m = input.items[0].items.len;
+    var total: u64 = 0;
+    var more_progress_possible = true;
+    while (more_progress_possible) {
+        more_progress_possible = false;
+        var i: usize = 0;
+        while (i < n) : (i += 1) {
+            var j: usize = 0;
+            while (j < m) : (j += 1) {
+                if (!input.items[i].items[j]) {
+                    continue;
+                }
+                var adjacent: usize = 0;
+                var iter = util.AdjacentCoordsIter.new(n, m, i, j);
+
+                while (iter.next()) |coords| {
+                    if (input.items[coords.i].items[coords.j]) {
+                        adjacent += 1;
+                    }
+                }
+                if (adjacent < 4) {
+                    total += 1;
+                    input.items[i].items[j] = false;
+                    more_progress_possible = true;
+                }
+            }
+        }
+    }
+    return total;
 }
 
 fn parse_input(s: []const u8) !std.ArrayList(std.ArrayList(bool)) {
@@ -69,9 +98,9 @@ test "problem_1" {
     try std.testing.expectEqual(1320, problem_1());
 }
 test "problem_2_example" {
-    const input = "";
-    try std.testing.expectEqual(0, problem_2_impl(input));
+    const input = "..@@.@@@@.\n@@@.@.@.@@\n@@@@@.@.@@\n@.@@@@..@.\n@@.@@@@.@@\n.@@@@@@@.@\n.@.@.@.@@@\n@.@@@.@@@@\n.@@@@@@@@.\n@.@.@@@.@.\n";
+    try std.testing.expectEqual(43, problem_2_impl(input));
 }
 test "problem_2" {
-    try std.testing.expectEqual(0, problem_2());
+    try std.testing.expectEqual(8354, problem_2());
 }
