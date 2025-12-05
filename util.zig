@@ -1,5 +1,76 @@
 const std = @import("std");
 
+pub const Coords = struct { i: usize, j: usize };
+
+pub const AdjacentCoordsIter = struct {
+    i_upper: usize,
+    j_upper: usize,
+    i: usize,
+    j: usize,
+    state: usize,
+
+    pub fn new(i_upper: usize, j_upper: usize, i: usize, j: usize) AdjacentCoordsIter {
+        return AdjacentCoordsIter{
+            .i_upper = i_upper,
+            .j_upper = j_upper,
+            .i = i,
+            .j = j,
+            .state = 0,
+        };
+    }
+    pub fn next(self: *AdjacentCoordsIter) ?Coords {
+        while (true) {
+            const state = self.state;
+            self.state += 1;
+            switch (state) {
+                0 => {
+                    if (self.i > 0 and self.j > 0) {
+                        return Coords{ .i = self.i - 1, .j = self.j - 1 };
+                    }
+                },
+                1 => {
+                    if (self.i > 0) {
+                        return Coords{ .i = self.i - 1, .j = self.j };
+                    }
+                },
+                2 => {
+                    if (self.i > 0 and self.j + 1 < self.j_upper) {
+                        return Coords{ .i = self.i - 1, .j = self.j + 1 };
+                    }
+                },
+                3 => {
+                    if (self.j > 0) {
+                        return Coords{ .i = self.i, .j = self.j - 1 };
+                    }
+                },
+                4 => {
+                    if (self.j + 1 < self.j_upper) {
+                        return Coords{ .i = self.i, .j = self.j + 1 };
+                    }
+                },
+                5 => {
+                    if (self.i + 1 < self.i_upper and self.j > 0) {
+                        return Coords{ .i = self.i + 1, .j = self.j - 1 };
+                    }
+                },
+                6 => {
+                    if (self.i + 1 < self.i_upper) {
+                        return Coords{ .i = self.i + 1, .j = self.j };
+                    }
+                },
+                7 => {
+                    if (self.i + 1 < self.i_upper and self.j + 1 < self.j_upper) {
+                        return Coords{ .i = self.i + 1, .j = self.j + 1 };
+                    }
+                },
+                else => {
+                    return null;
+                },
+            }
+        }
+    }
+};
+
 pub fn readInput(day: u32) ![]u8 {
     const allocator = std.heap.page_allocator;
     var b: [30]u8 = undefined;
