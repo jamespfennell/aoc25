@@ -36,8 +36,29 @@ pub fn problem_2() !u64 {
 }
 
 fn problem_2_impl(file_content: []const u8) !u64 {
-    _ = file_content;
-    return 0;
+    const input = try parse_input(file_content);
+
+    var sum: u64 = 0;
+    var max_seen: u64 = 0;
+    for (input.ranges.items) |range| {
+        if (max_seen + 1 > range.lower) {
+            // case 1: we've already seen some or all of this range
+            // we need to add (max_seen, range.upper].
+            // it is possible max_seen is larger than range.upper.
+            if (range.upper > max_seen) {
+                sum += range.upper - max_seen;
+                max_seen = range.upper;
+            }
+        } else {
+            // case 2: we've seen none of this range
+            // we need to add [range.lower, range.upper]
+            sum += range.upper + 1 - range.lower;
+            // note that max_seen < max_seen +1 <= range.lower <= range.upper
+            // so this is not regressing max_seen.
+            max_seen = range.upper;
+        }
+    }
+    return sum;
 }
 
 const Range = struct {
@@ -90,12 +111,12 @@ test "problem_1_example" {
     try std.testing.expectEqual(3, problem_1_impl(input));
 }
 test "problem_1" {
-    // try std.testing.expectEqual(0, problem_1());
+    try std.testing.expectEqual(690, problem_1());
 }
 test "problem_2_example" {
     const input = "3-5\n10-14\n16-20\n12-18\n\n1\n5\n8\n11\n17\n32\n";
-    try std.testing.expectEqual(0, problem_2_impl(input));
+    try std.testing.expectEqual(14, problem_2_impl(input));
 }
 test "problem_2" {
-    try std.testing.expectEqual(0, problem_2());
+    try std.testing.expectEqual(344323629240733, problem_2());
 }
