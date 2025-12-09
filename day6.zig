@@ -31,8 +31,50 @@ pub fn problem_2() !u64 {
 }
 
 fn problem_2_impl(file_content: []const u8) !u64 {
-    _ = file_content;
-    return 0;
+    var rows = std.ArrayList([]const u8).init(std.heap.page_allocator);
+    var lines = std.mem.splitSequence(u8, file_content, "\n");
+    var width: usize = 0;
+    while (lines.next()) |line| {
+        if (line.len > width) {
+            width = line.len;
+        }
+        try rows.append(line);
+    }
+
+    var col = std.ArrayList(u8).init(std.heap.page_allocator);
+    var i: usize = 0;
+    var result: u64 = 0;
+    var inner_result: u64 = 0;
+    var current_op: u8 = ' ';
+    while (i < width) : (i += 1) {
+        try col.resize(0);
+        for (rows.items) |row| {
+            if (i < row.len and row[i] != ' ') {
+                try col.append(row[i]);
+            }
+        }
+        if (col.items.len == 0) {
+            continue;
+        }
+        const last_char = col.items[col.items.len - 1];
+        if (last_char == '*' or last_char == '+') {
+            current_op = last_char;
+            _ = col.pop();
+            result += inner_result;
+            if (last_char == '*') {
+                inner_result = 1;
+            } else {
+                inner_result = 0;
+            }
+        }
+        const n = util.stringToInt(col.items);
+        if (current_op == '*') {
+            inner_result *= n;
+        } else {
+            inner_result += n;
+        }
+    }
+    return result + inner_result;
 }
 
 const Problem = struct {
@@ -68,16 +110,16 @@ fn parse_input(s: []const u8) !std.ArrayList(Problem) {
 }
 
 test "problem_1_example" {
-    const input = "123 328  51 64 \n 45 64  387 23 \n  6 98  215 314 \n *   +   *   +  ";
+    const input = "123 328  51 64 \n 45 64  387 23 \n  6 98  215 314 \n*   +   *   +  ";
     try std.testing.expectEqual(4277556, problem_1_impl(input));
 }
 test "problem_1" {
     try std.testing.expectEqual(4951502530386, problem_1());
 }
 test "problem_2_example" {
-    const input = "";
-    try std.testing.expectEqual(0, problem_2_impl(input));
+    const input = "123 328  51 64 \n 45 64  387 23 \n  6 98  215 314 \n*   +   *   +  ";
+    try std.testing.expectEqual(3263827, problem_2_impl(input));
 }
 test "problem_2" {
-    try std.testing.expectEqual(0, problem_2());
+    try std.testing.expectEqual(8486156119946, problem_2());
 }
