@@ -8,7 +8,85 @@ pub fn problem_1() !u64 {
 
 fn problem_1_impl(file_content: []const u8) !u64 {
     const label_to_out = try parse_input(file_content);
+    const ordered = try top_sort(label_to_out);
+    var label_to_ways_out = std.AutoHashMap(Label, u64).init(std.heap.page_allocator);
+    var iter = std.mem.reverseIterator(ordered.items);
+    while (iter.next()) |label| {
+        if (std.mem.eql(u8, &label, &Label{ 'o', 'u', 't' })) {
+            try label_to_ways_out.put(label, 1);
+        } else {
+            try label_to_ways_out.put(label, 0);
+        }
+        const p = label_to_ways_out.getPtr(label).?;
+        if (label_to_out.get(label)) |outs| {
+            for (outs.items) |out| {
+                p.* += label_to_ways_out.get(out).?;
+            }
+        }
+    }
+    const you = Label{ 'y', 'o', 'u' };
+    return label_to_ways_out.get(you).?;
+}
 
+pub fn problem_2() !u64 {
+    const file_content = try util.readInput(11);
+    return problem_2_impl(file_content);
+}
+const WaysOut = struct {
+    dac_only: u64,
+    fft_only: u64,
+    dac_and_fft: u64,
+    neither: u64,
+
+    fn update(self: *WaysOut, label: Label, other: WaysOut) void {
+        if (std.mem.eql(u8, &label, &Label{ 'd', 'a', 'c' })) {
+            self.dac_only += other.dac_only + other.neither;
+            self.dac_and_fft += other.fft_only + other.dac_and_fft;
+        } else if (std.mem.eql(u8, &label, &Label{ 'f', 'f', 't' })) {
+            self.fft_only += other.fft_only + other.neither;
+            self.dac_and_fft += other.dac_only + other.dac_and_fft;
+        } else {
+            self.dac_only += other.dac_only;
+            self.fft_only += other.fft_only;
+            self.dac_and_fft += other.dac_and_fft;
+            self.neither += other.neither;
+        }
+    }
+};
+
+fn problem_2_impl(file_content: []const u8) !u64 {
+    const label_to_out = try parse_input(file_content);
+    const ordered = try top_sort(label_to_out);
+    var label_to_ways_out = std.AutoHashMap(Label, WaysOut).init(std.heap.page_allocator);
+    var iter = std.mem.reverseIterator(ordered.items);
+    while (iter.next()) |label| {
+        if (std.mem.eql(u8, &label, &Label{ 'o', 'u', 't' })) {
+            try label_to_ways_out.put(label, WaysOut{
+                .dac_only = 0,
+                .fft_only = 0,
+                .neither = 1,
+                .dac_and_fft = 0,
+            });
+        } else {
+            try label_to_ways_out.put(label, WaysOut{
+                .dac_only = 0,
+                .fft_only = 0,
+                .neither = 0,
+                .dac_and_fft = 0,
+            });
+        }
+        const p = label_to_ways_out.getPtr(label).?;
+        if (label_to_out.get(label)) |outs| {
+            for (outs.items) |out| {
+                p.update(label, label_to_ways_out.get(out).?);
+            }
+        }
+    }
+    const svr = Label{ 's', 'v', 'r' };
+    return label_to_ways_out.get(svr).?.dac_and_fft;
+}
+
+fn top_sort(label_to_out: std.AutoHashMap(Label, std.ArrayList(Label))) !std.ArrayList(Label) {
     var label_to_num_in = std.AutoHashMap(Label, usize).init(std.heap.page_allocator);
     {
         var iter = label_to_out.iterator();
@@ -48,34 +126,7 @@ fn problem_1_impl(file_content: []const u8) !u64 {
             }
         }
     }
-
-    var label_to_ways_out = std.AutoHashMap(Label, u64).init(std.heap.page_allocator);
-    var iter = std.mem.reverseIterator(ordered.items);
-    while (iter.next()) |label| {
-        if (std.mem.eql(u8, &label, &Label{ 'o', 'u', 't' })) {
-            try label_to_ways_out.put(label, 1);
-        } else {
-            try label_to_ways_out.put(label, 0);
-        }
-        const p = label_to_ways_out.getPtr(label).?;
-        if (label_to_out.get(label)) |outs| {
-            for (outs.items) |out| {
-                p.* += label_to_ways_out.get(out).?;
-            }
-        }
-    }
-    const you = Label{ 'y', 'o', 'u' };
-    return label_to_ways_out.get(you).?;
-}
-
-pub fn problem_2() !u64 {
-    const file_content = try util.readInput(11);
-    return problem_2_impl(file_content);
-}
-
-fn problem_2_impl(file_content: []const u8) !u64 {
-    _ = file_content;
-    return 0;
+    return ordered;
 }
 
 const Label = [3]u8;
@@ -106,9 +157,9 @@ test "problem_1" {
     try std.testing.expectEqual(782, problem_1());
 }
 test "problem_2_example" {
-    const input = "";
-    try std.testing.expectEqual(0, problem_2_impl(input));
+    const input = "svr: aaa bbb\naaa: fft\nfft: ccc\nbbb: tty\ntty: ccc\nccc: ddd eee\nddd: hub\nhub: fff\neee: dac\ndac: fff\nfff: ggg hhh\nggg: out\nhhh: out\n";
+    try std.testing.expectEqual(2, problem_2_impl(input));
 }
 test "problem_2" {
-    try std.testing.expectEqual(0, problem_2());
+    try std.testing.expectEqual(401398751986160, problem_2());
 }
